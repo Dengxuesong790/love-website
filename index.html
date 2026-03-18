@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王斐和邓雪松 - 我们的爱情故事</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+    <!-- 背景音乐控制 -->
+    <div class="music-control" id="musicControl">
+        <div class="music-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+        </div>
+        <div class="music-status">音乐已暂停</div>
+    </div>
+    <audio id="bgMusic" loop>
+        <source src="music/background.mp3" type="audio/mpeg">
+        您的浏览器不支持 audio 元素。
+    </audio>
+
+    <!-- 爱心飘落容器 -->
+    <div class="hearts-container" id="heartsContainer"></div>
+
+    <!-- 首页封面 -->
+    <section class="hero-section" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content fade-in">
+            <div class="top-area">
+                <h1 class="couple-names">王斐和邓雪松</h1>
+            </div>
+            <div class="middle-area">
+                <h2 class="main-title">我的爱意，都藏在这里</h2>
+            </div>
+            <div class="bottom-area">
+                <div class="timer-container">
+                    <div class="timer-label">我们已经相爱了</div>
+                    <div class="timer-display" id="timerDisplay">
+                        <div class="time-unit">
+                            <span class="time-number" id="days">0</span>
+                            <span class="time-text">天</span>
+                        </div>
+                        <div class="time-unit">
+                            <span class="time-number" id="hours">0</span>
+                            <span class="time-text">小时</span>
+                        </div>
+                        <div class="time-unit">
+                            <span class="time-number" id="minutes">0</span>
+                            <span class="time-text">分钟</span>
+                        </div>
+                        <div class="time-unit">
+                            <span class="time-number" id="seconds">0</span>
+                            <span class="time-text">秒</span>
+                        </div>
+                    </div>
+                    <div class="timer-start-date">从 2026 年 4 月 11 日 告白日开始</div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-hint">
+            <div class="scroll-arrow"></div>
+            <span>向下探索我们的故事</span>
+        </div>
+    </section>
+
+    <!-- 时间线页面 -->
+    <section class="timeline-section" id="timeline">
+        <div class="section-container">
+            <h2 class="section-title">我们的故事</h2>
+            <p class="section-subtitle">每一个瞬间，都是珍贵的回忆</p>
+            
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                
+                <div class="timeline-item" data-date="2026-03-08">
+                    <div class="timeline-dot">
+                        <div class="dot-icon">🌸</div>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2026 年 3 月 8 日</div>
+                        <div class="timeline-title">相识</div>
+                        <div class="timeline-description">第一次见面，心跳动的瞬间</div>
+                        <div class="timeline-note">命运让我们相遇</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-date="2026-03-08">
+                    <div class="timeline-dot">
+                        <div class="dot-icon">💕</div>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2026 年 3 月 8 日</div>
+                        <div class="timeline-title">第一次约会</div>
+                        <div class="timeline-description">一起度过的美好时光</div>
+                        <div class="timeline-note">紧张又开心的约会</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-date="2026-04-11">
+                    <div class="timeline-dot">
+                        <div class="dot-icon">💖</div>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2026 年 4 月 11 日</div>
+                        <div class="timeline-title">告白</div>
+                        <div class="timeline-description">我们在一起了</div>
+                        <div class="timeline-note">最美好的开始</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 专属相册页面 -->
+    <section class="gallery-section" id="gallery">
+        <div class="section-container">
+            <h2 class="section-title">专属相册</h2>
+            <p class="section-subtitle">定格的每一个美好瞬间</p>
+            
+            <div class="gallery-container">
+                <div class="gallery-track" id="galleryTrack">
+                    <div class="gallery-item">
+                        <img src="images/photo1.jpg" alt="我们的合照 1" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/photo2.jpg" alt="我们的合照 2" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/photo3.jpg" alt="我们的合照 3" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/photo4.jpg" alt="我们的合照 4" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/photo5.jpg" alt="我们的合照 5" loading="lazy">
+                    </div>
+                </div>
+                
+                <div class="gallery-nav">
+                    <button class="gallery-btn prev-btn" id="prevBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                        </svg>
+                    </button>
+                    <div class="gallery-dots" id="galleryDots"></div>
+                    <button class="gallery-btn next-btn" id="nextBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="gallery-note">
+                💡 点击图片可以放大查看，左右滑动或点击箭头切换照片
+            </div>
+        </div>
+    </section>
+
+    <!-- 图片放大弹窗 -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </button>
+        <button class="lightbox-nav prev-lightbox" id="prevLightbox">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            </svg>
+        </button>
+        <div class="lightbox-content">
+            <img id="lightboxImage" src="" alt="">
+        </div>
+        <button class="lightbox-nav next-lightbox" id="nextLightbox">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- 告白信页面 -->
+    <section class="letter-section" id="letter">
+        <div class="section-container">
+            <h2 class="section-title">给你的告白信</h2>
+            <p class="section-subtitle">字字句句，都是真心</p>
+            
+            <div class="letter-container fade-in-up">
+                <div class="letter-paper">
+                    <div class="letter-header">
+                        <span class="heart-decoration">❤️</span>
+                        <div class="letter-title">致我最爱的王斐</div>
+                        <span class="heart-decoration">❤️</span>
+                    </div>
+                    
+                    <div class="letter-content">
+                        <p>亲爱的斐：</p>
+                        
+                        <p>提笔写这封信的时候，我的心里满是你的身影。从遇见你的那一刻起，我的世界就变得不一样了。</p>
+                        
+                        <p>还记得我们第一次相见的那天吗？那是 2026 年 3 月 8 日，阳光正好，微风不燥，而你笑着向我走来的样子，成为了我记忆中最美的画面。从那天开始，我的心跳就为你而加速。</p>
+                        
+                        <p>我们一起度过了那么多美好的时光：第一次约会的紧张与期待，每一次牵手的心动，每一次相视而笑的温暖。这些点点滴滴的片段，构成了我生命中最珍贵的回忆。</p>
+                        
+                        <p>2026 年 4 月 11 日，是我人生中最重要的一天。因为从那天起，我有了你，你成了我的恋人，成了我想要守护一生的人。</p>
+                        
+                        <p>我想告诉你，我对你的爱意，藏在每一个清晨的问候里，藏在每一次温柔的注视里，藏在每一份用心的陪伴里。我爱你，不仅仅是一时的冲动，而是经过时间沉淀后依然坚定的选择。</p>
+                        
+                        <p>未来的日子里，我想和你一起看遍世间美景，尝遍人间美食，经历人生的喜怒哀乐。我想在每一个清晨醒来都能看到你的睡颜，在每一个夜晚都能拥你入眠。</p>
+                        
+                        <p>你在身边，在我身边，岁岁年年。这就是我最大的幸福，也是我最美的期待。</p>
+                        
+                        <p class="letter-signature">
+                            永远爱你的<br>
+                            邓雪松<br>
+                            <span class="letter-date">2026 年 4 月 11 日</span>
+                        </p>
+                    </div>
+                    
+                    <div class="letter-footer">
+                        <div class="seal">💕</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 结尾页 -->
+    <section class="ending-section" id="ending">
+        <div class="ending-container">
+            <div class="ending-photo-frame">
+                <div class="ending-photo">
+                    <img src="images/couple-photo.jpg" alt="我们的合照" id="endingPhoto">
+                    <div class="photo-placeholder" id="photoPlaceholder">
+                        <div class="placeholder-icon">📷</div>
+                        <div class="placeholder-text">此处替换为你们的合照</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ending-text">
+                <h2 class="ending-title">你在身边，在你身边</h2>
+                <p class="ending-subtitle">岁岁年年</p>
+                <div class="ending-hearts">💕 💖 💕</div>
+            </div>
+            
+            <div class="back-to-top" id="backToTop">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/>
+                </svg>
+                <span>回到开始</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 导航按钮 -->
+    <div class="nav-dots" id="navDots">
+        <div class="nav-dot active" data-section="home" title="首页"></div>
+        <div class="nav-dot" data-section="timeline" title="我们的故事"></div>
+        <div class="nav-dot" data-section="gallery" title="专属相册"></div>
+        <div class="nav-dot" data-section="letter" title="告白信"></div>
+        <div class="nav-dot" data-section="ending" title="结尾"></div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
