@@ -1,0 +1,18 @@
+# ===================================
+# Git 忽略规则
+# ===================================
+
+# IDE 配置
+.idea/
+*.iml
+
+# Python 后端运行时产物
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/love_website.db
+backend/uploads/
+
+# 系统文件
+Thumbs.db
+.DS_Store

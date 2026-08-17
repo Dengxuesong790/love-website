@@ -1,0 +1,5 @@
+# 爱情纪念网站后端依赖
+# 安装: pip install -r requirements.txt
+flask>=3.0
+flask-cors>=4.0
+werkzeug>=3.0

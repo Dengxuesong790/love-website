@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 爱情纪念网站</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="admin-brand">💖 <span class="brand-pink">爱情纪念网站</span> 管理后台</div>
+        <div class="admin-actions">
+            <span id="adminUser"></span>
+            <button class="btn-link" id="logoutBtn">退出登录</button>
+            <a class="btn-link" href="../index.html" target="_blank">查看网站</a>
+        </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="site">🏠 站点配置</button>
+        <button class="tab-btn" data-tab="letter">💌 情书</button>
+        <button class="tab-btn" data-tab="timeline">📅 时间线</button>
+        <button class="tab-btn" data-tab="gallery">📷 相册</button>
+        <button class="tab-btn" data-tab="music">🎵 音乐</button>
+    </nav>
+
+    <main class="admin-body">
+
+        <!-- ==================== 站点配置 ==================== -->
+        <div class="tab-panel active" id="panel-site">
+            <div class="panel-card">
+                <div class="panel-title">基础信息</div>
+                <p class="panel-tip">修改后点击"保存修改"，前端页面刷新即生效（需后端服务在线）。</p>
+                <div class="field-row">
+                    <div class="form-group">
+                        <label>网站标题（浏览器标签页标题）</label>
+                        <input type="text" class="form-control" id="site-title" data-config="site.title">
+                    </div>
+                    <div class="form-group">
+                        <label>情侣昵称（首页顶部）</label>
+                        <input type="text" class="form-control" id="site-couple_names" data-config="site.couple_names">
+                    </div>
+                    <div class="form-group">
+                        <label>主标语（首页大标题）</label>
+                        <input type="text" class="form-control" id="site-description" data-config="site.description">
+                    </div>
+                    <div class="form-group">
+                        <label>相爱开始日期（计时器起点，格式 YYYY-MM-DD）</label>
+                        <input type="date" class="form-control" id="site-start_date" data-config="site.start_date">
+                    </div>
+                </div>
+                <div class="save-bar">
+                    <button class="btn-primary" style="width:auto; padding:10px 28px;" data-save="site">保存修改</button>
+                    <span class="save-tip" id="tip-site"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 情书 ==================== -->
+        <div class="tab-panel" id="panel-letter">
+            <div class="panel-card">
+                <div class="panel-title">告白信内容</div>
+                <p class="panel-tip">正文用空行分段；"永远爱你的..."所在段落会自动按签名样式展示。</p>
+                <div class="form-group">
+                    <label>情书标题</label>
+                    <input type="text" class="form-control" id="letter-title" data-config="letter.title">
+                </div>
+                <div class="form-group">
+                    <label>情书正文</label>
+                    <textarea class="form-control" id="letter-content" data-config="letter.content"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>落款签名</label>
+                    <textarea class="form-control" id="letter-signature" data-config="letter.signature" style="min-height:70px;"></textarea>
+                </div>
+                <div class="save-bar">
+                    <button class="btn-primary" style="width:auto; padding:10px 28px;" data-save="letter">保存修改</button>
+                    <span class="save-tip" id="tip-letter"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 时间线 ==================== -->
+        <div class="tab-panel" id="panel-timeline">
+            <div class="panel-card">
+                <div class="section-title-row">
+                    <div class="panel-title">故事时间线事件</div>
+                    <button class="btn-secondary" id="timelineAdd">＋ 添加事件</button>
+                </div>
+                <p class="panel-tip">事件将按从上到下的顺序展示。每行填写：日期 / 图标 / 标题 / 描述 / 备注。</p>
+                <div id="timelineList"></div>
+                <div class="save-bar">
+                    <button class="btn-primary" style="width:auto; padding:10px 28px;" data-save="timeline">保存时间线</button>
+                    <span class="save-tip" id="tip-timeline"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 相册 ==================== -->
+        <div class="tab-panel" id="panel-gallery">
+            <div class="panel-card">
+                <div class="panel-title">相册照片</div>
+                <div class="upload-area">
+                    <div style="font-size:0.85rem; color:var(--text-light);">上传新照片（支持 jpg / png / gif / webp）</div>
+                    <input type="file" id="galleryFile" accept="image/*">
+                    <div class="upload-line">
+                        <input type="text" class="form-control" id="galleryName" placeholder="照片名称（可选）">
+                        <button class="btn-secondary" id="galleryUpload">上传</button>
+                        <span class="save-tip" id="tip-gallery-upload"></span>
+                    </div>
+                </div>
+                <div id="galleryList"></div>
+                <p class="panel-tip">拖拽排序请使用"上移 / 下移"；关闭开关的照片前端将不展示。</p>
+            </div>
+        </div>
+
+        <!-- ==================== 音乐 ==================== -->
+        <div class="tab-panel" id="panel-music">
+            <div class="panel-card">
+                <div class="panel-title">背景音乐</div>
+                <div class="upload-area">
+                    <div style="font-size:0.85rem; color:var(--text-light);">上传音乐（支持 mp3 / wav / ogg / m4a）</div>
+                    <input type="file" id="musicFile" accept="audio/*">
+                    <div class="upload-line">
+                        <input type="text" class="form-control" id="musicName" placeholder="音乐名称（可选）">
+                        <button class="btn-secondary" id="musicUpload">上传</button>
+                        <span class="save-tip" id="tip-music-upload"></span>
+                    </div>
+                </div>
+                <div id="musicList"></div>
+                <p class="panel-tip">前端默认播放列表中第一首"启用"的音乐。</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="../js/api-config.js"></script>
+    <script>
+        const API = window.API_BASE;
+        const token = localStorage.getItem('admin_token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // ---------- 基础请求封装 ----------
+        async function api(path, options = {}) {
+            const headers = Object.assign(
+                { 'Authorization': 'Bearer ' + token },
+                options.headers || {}
+            );
+            // 表单上传（FormData）交给浏览器自动设置 multipart 头
+            if (options.body && typeof options.body !== 'string' && !(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(options.body);
+            }
+            const res = await fetch(API + path, Object.assign({}, options, { headers }));
+            if (res.status === 401) {
+                localStorage.removeItem('admin_token');
+                window.location.href = 'login.html';
+                throw new Error('未登录');
+            }
+            const result = await res.json();
+            if (result.code !== 200) {
+                throw new Error(result.message || '请求失败');
+            }
+            return result.data;
+        }
+
+        function setTip(id, text, isError) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = text;
+                el.style.color = isError ? '#E5484D' : '#30A46C';
+                setTimeout(() => { el.textContent = ''; }, 4000);
+            }
+        }
+
+        // ---------- Tab 切换 ----------
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('panel-' + this.dataset.tab).classList.add('active');
+                if (this.dataset.tab === 'timeline') loadTimeline();
+                if (this.dataset.tab === 'gallery') loadResources('image', 'galleryList');
+                if (this.dataset.tab === 'music') loadResources('music', 'musicList');
+            });
+        });
+
+        // ---------- 登录信息 ----------
+        document.getElementById('adminUser').textContent = '👤 ' + (localStorage.getItem('admin_username') || 'admin');
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+            api('/auth/logout', { method: 'POST' }).catch(() => {});
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+            window.location.href = 'login.html';
+        });
+
+        // ==================== 站点配置 / 情书 ====================
+        function loadTextConfigs() {
+            api('/config/all').then(list => {
+                const map = {};
+                list.forEach(item => map[item.configKey] = item.configValue);
+                document.querySelectorAll('[data-config]').forEach(input => {
+                    const key = input.dataset.config;
+                    if (map[key] !== undefined) input.value = map[key];
+                });
+                document.querySelectorAll('textarea[data-config]').forEach(ta => {
+                    const key = ta.dataset.config;
+                    if (map[key] !== undefined) ta.value = map[key];
+                });
+            }).catch(e => {
+                document.querySelectorAll('[data-save]').forEach(b => {
+                    b.textContent = '加载失败，请检查后端服务';
+                    b.disabled = true;
+                });
+            });
+        }
+
+        document.querySelectorAll('[data-save]').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const group = this.dataset.save;
+                const keys = group === 'letter'
+                    ? ['letter.title', 'letter.content', 'letter.signature']
+                    : ['site.title', 'site.couple_names', 'site.description', 'site.start_date'];
+                const configs = [];
+                document.querySelectorAll('[data-config]').forEach(input => {
+                    if (keys.includes(input.dataset.config)) {
+                        configs.push({ configKey: input.dataset.config, configValue: input.value });
+                    }
+                });
+                try {
+                    await api('/config/batch', { method: 'PUT', body: { configs } });
+                    setTip('tip-' + group, '✅ 保存成功，刷新网站页面即可看到效果');
+                } catch (e) {
+                    setTip('tip-' + group, '❌ ' + e.message, true);
+                }
+            });
+        });
+
+        // ==================== 时间线 ====================
+        let timelineEvents = [];
+
+        function loadTimeline() {
+            api('/config/all').then(list => {
+                const item = list.find(i => i.configKey === 'timeline.events');
+                if (item && item.configValue) {
+                    try { timelineEvents = JSON.parse(item.configValue); } catch (e) { timelineEvents = []; }
+                } else {
+                    timelineEvents = [];
+                }
+                renderTimeline();
+            }).catch(e => setTip('tip-timeline', '❌ ' + e.message, true));
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timelineList');
+            if (!timelineEvents.length) {
+                container.innerHTML = '<div class="empty-tip">还没有时间线事件，点击右上角"添加事件"开始。</div>';
+                return;
+            }
+            container.innerHTML = '';
+            timelineEvents.forEach((ev, idx) => {
+                const row = document.createElement('div');
+                row.className = 'timeline-editor-item';
+                row.innerHTML = `
+                    <input type="date" class="ev-date" value="${ev.date || ''}" title="日期">
+                    <input type="text" class="ev-icon" value="${ev.icon || ''}" placeholder="图标" title="图标 emoji，如 💕">
+                    <input type="text" class="ev-title" value="${ev.title || ''}" placeholder="标题">
+                    <input type="text" class="ev-desc" value="${ev.description || ''}" placeholder="描述">
+                    <input type="text" class="ev-note" value="${ev.note || ''}" placeholder="备注（可选）">
+                    <div class="timeline-actions">
+                        <button class="btn-mini ev-up" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                        <button class="btn-mini ev-down" ${idx === timelineEvents.length - 1 ? 'disabled' : ''}>↓</button>
+                        <button class="btn-danger ev-del">删除</button>
+                    </div>`;
+                container.appendChild(row);
+            });
+
+            container.querySelectorAll('.ev-up').forEach((b, i) => {
+                if (i === 0) return;
+                b.addEventListener('click', () => {
+                    [timelineEvents[i - 1], timelineEvents[i]] = [timelineEvents[i], timelineEvents[i - 1]];
+                    renderTimeline();
+                });
+            });
+            container.querySelectorAll('.ev-down').forEach((b, i) => {
+                if (i === timelineEvents.length - 1) return;
+                b.addEventListener('click', () => {
+                    [timelineEvents[i + 1], timelineEvents[i]] = [timelineEvents[i], timelineEvents[i + 1]];
+                    renderTimeline();
+                });
+            });
+            container.querySelectorAll('.ev-del').forEach((b, i) => {
+                b.addEventListener('click', () => {
+                    timelineEvents.splice(i, 1);
+                    renderTimeline();
+                });
+            });
+            // 编辑后同步到内存
+            container.querySelectorAll('.timeline-editor-item').forEach((row, i) => {
+                row.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        const ev = timelineEvents[i] || {};
+                        ev.date = row.querySelector('.ev-date').value;
+                        ev.icon = row.querySelector('.ev-icon').value;
+                        ev.title = row.querySelector('.ev-title').value;
+                        ev.description = row.querySelector('.ev-desc').value;
+                        ev.note = row.querySelector('.ev-note').value;
+                        timelineEvents[i] = ev;
+                    });
+                });
+            });
+        }
+
+        document.getElementById('timelineAdd').addEventListener('click', () => {
+            timelineEvents.push({ date: '', icon: '💕', title: '新的事件', description: '写点什么吧', note: '' });
+            renderTimeline();
+        });
+
+        document.querySelector('[data-save="timeline"]').addEventListener('click', async function () {
+            try {
+                await api('/config/timeline.events', {
+                    method: 'PUT',
+                    body: { configValue: JSON.stringify(timelineEvents) }
+                });
+                setTip('tip-timeline', '✅ 时间线已保存');
+            } catch (e) {
+                setTip('tip-timeline', '❌ ' + e.message, true);
+            }
+        });
+
+        // ==================== 相册 / 音乐 ====================
+        async function loadResources(type, listId) {
+            const container = document.getElementById(listId);
+            try {
+                const rows = await api('/resource/list?type=' + type);
+                if (!rows.length) {
+                    container.innerHTML = '<div class="empty-tip">暂无内容，先在上方上传一个吧～</div>';
+                    return;
+                }
+                container.innerHTML = '';
+                rows.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'resource-item';
+                    const url = API + item.urlPath;
+                    const media = type === 'image'
+                        ? `<img class="resource-thumb" src="${url}" alt="">`
+                        : `<div class="resource-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.6rem;">🎵</div>`;
+                    row.innerHTML = `
+                        ${media}
+                        <div class="resource-info">
+                            <div class="resource-name">${item.resourceName}</div>
+                            <div class="resource-meta">排序 ${idx + 1}${item.isEnabled === 1 ? ' · 已启用' : ' · 已停用'}</div>
+                        </div>
+                        ${type === 'music' ? `<audio controls preload="none" src="${url}" style="height:36px;max-width:180px;"></audio>` : ''}
+                        <label class="switch" title="启用 / 停用">
+                            <input type="checkbox" class="res-enabled" ${item.isEnabled === 1 ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                        <div class="resource-actions">
+                            <button class="btn-mini res-up" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                            <button class="btn-mini res-down" ${idx === rows.length - 1 ? 'disabled' : ''}>↓</button>
+                            <button class="btn-danger res-del">删除</button>
+                        </div>`;
+                    container.appendChild(row);
+
+                    const save = async () => {
+                        await api('/resource/' + item.id, {
+                            method: 'PUT',
+                            body: {
+                                resourceName: item.resourceName,
+                                sortOrder: item.sortOrder,
+                                isEnabled: item.isEnabled === 1 ? 1 : 0
+                            }
+                        });
+                    };
+
+                    row.querySelector('.res-enabled').addEventListener('change', async (e) => {
+                        item.isEnabled = e.target.checked ? 1 : 0;
+                        await save();
+                        loadResources(type, listId);
+                    });
+                    row.querySelector('.res-up').addEventListener('click', () => moveResource(rows, idx, -1, type, listId));
+                    row.querySelector('.res-down').addEventListener('click', () => moveResource(rows, idx, 1, type, listId));
+                    row.querySelector('.res-del').addEventListener('click', async () => {
+                        if (!confirm('确定删除该' + (type === 'image' ? '照片' : '音乐') + '？')) return;
+                        await api('/resource/' + item.id, { method: 'DELETE' });
+                        loadResources(type, listId);
+                    });
+                });
+            } catch (e) {
+                container.innerHTML = `<div class="empty-tip">加载失败：${e.message}</div>`;
+            }
+        }
+
+        // 交换资源顺序：互换数组中相邻项，并重写所有 sortOrder 保证顺序唯一
+        async function moveResource(rows, idx, delta, type, listId) {
+            const j = idx + delta;
+            if (j < 0 || j >= rows.length) return;
+            [rows[idx], rows[j]] = [rows[j], rows[idx]];
+            try {
+                for (let i = 0; i < rows.length; i++) {
+                    await api('/resource/' + rows[i].id, {
+                        method: 'PUT',
+                        body: {
+                            resourceName: rows[i].resourceName,
+                            sortOrder: i + 1,
+                            isEnabled: rows[i].isEnabled
+                        }
+                    });
+                }
+                loadResources(type, listId);
+            } catch (e) {
+                setTip('tip-' + (type === 'image' ? 'gallery' : 'music') + '-upload', '❌ ' + e.message, true);
+            }
+        }
+
+        // 上传绑定
+        function bindUpload(fileId, nameId, btnId, tipId, type, listId) {
+            document.getElementById(btnId).addEventListener('click', async function () {
+                const file = document.getElementById(fileId).files[0];
+                if (!file) {
+                    setTip(tipId, '请先选择文件', true);
+                    return;
+                }
+                this.disabled = true;
+                this.textContent = '上传中...';
+                const formData = new FormData();
+                formData.append('type', type);
+                formData.append('file', file);
+                formData.append('resourceName', document.getElementById(nameId).value.trim() || file.name);
+                try {
+                    await api('/resource/upload', { method: 'POST', body: formData });
+                    setTip(tipId, '✅ 上传成功');
+                    document.getElementById(fileId).value = '';
+                    document.getElementById(nameId).value = '';
+                    loadResources(type, listId);
+                } catch (e) {
+                    setTip(tipId, '❌ ' + e.message, true);
+                } finally {
+                    this.disabled = false;
+                    this.textContent = '上传';
+                }
+            });
+        }
+
+        bindUpload('galleryFile', 'galleryName', 'galleryUpload', 'tip-gallery-upload', 'image', 'galleryList');
+        bindUpload('musicFile', 'musicName', 'musicUpload', 'tip-music-upload', 'music', 'musicList');
+
+        // 初始化加载
+        document.getElementById('adminUser').textContent = '👤 ' + (localStorage.getItem('admin_username') || 'admin');
+        loadTextConfigs();
+    </script>
+</body>
+</html>

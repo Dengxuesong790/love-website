@@ -2,7 +2,7 @@
 // 配置加载模块 - 从后端 API 动态加载配置
 // ===================================
 
-const CONFIG_API_BASE = 'http://localhost:8080/api';
+const CONFIG_API_BASE = window.API_BASE || 'http://localhost:8080/api';
 
 // 配置缓存
 let configCache = {};

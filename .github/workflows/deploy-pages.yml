@@ -1,0 +1,48 @@
+# ===================================
+# GitHub Pages 自动化部署
+# 推送到 main 分支即自动发布前端网站
+# 部署地址: https://dengxuesong790.github.io/love-website/
+# 使用步骤见《后端部署指南.md》中"前端自动化部署"章节
+# ===================================
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备发布文件
+        run: |
+          mkdir -p _site
+          cp -r css js images music admin index.html .nojekyll _site/
+
+      - name: 配置 GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传站点文件
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
