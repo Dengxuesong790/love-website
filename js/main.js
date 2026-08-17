@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initLightbox();
     initNavDots();
     initBackToTop();
+    initEndingPhoto();
     initHeartEffect();
     
     // 延迟初始化音乐播放器，等待配置加载完成
@@ -388,6 +389,32 @@ function initBackToTop() {
         });
         createHeartEffect(e.clientX, e.clientY);
     });
+}
+
+// ===================================
+// 结尾合照显示逻辑
+// ===================================
+
+function initEndingPhoto() {
+    const img = document.getElementById('endingPhoto');
+    const placeholder = document.getElementById('photoPlaceholder');
+    if (!img || !placeholder) return;
+    
+    img.addEventListener('load', function() {
+        img.classList.add('loaded');
+        placeholder.style.display = 'none';
+    });
+    
+    img.addEventListener('error', function() {
+        img.classList.remove('loaded');
+        placeholder.style.display = 'flex';
+    });
+    
+    // 图片可能已缓存完成，直接检查
+    if (img.complete && img.naturalWidth > 0) {
+        img.classList.add('loaded');
+        placeholder.style.display = 'none';
+    }
 }
 
 // ===================================
