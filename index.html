@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
+    <!-- 管理后台入口（可选） -->
+    <div style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
+        <button onclick="window.open('admin/login.html')" style="padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">⚙️ 管理后台</button>
+    </div>
     <!-- 背景音乐控制 -->
     <div class="music-control" id="musicControl">
         <div class="music-icon">
@@ -18,9 +22,9 @@
         <div class="music-status">音乐已暂停</div>
     </div>
     <audio id="bgMusic" loop>
-        <source src="music/background.mp3" type="audio/mpeg">
+        <source src="music/background.mp3" type="audio/mpeg" id="bgMusicSource">
         您的浏览器不支持 audio 元素。
-    </audio>
+     </audio>
 
     <!-- 爱心飘落容器 -->
     <div class="hearts-container" id="heartsContainer"></div>
@@ -56,7 +60,7 @@
                             <span class="time-text">秒</span>
                         </div>
                     </div>
-                    <div class="timer-start-date">从 2026 年 4 月 11 日 告白日开始</div>
+                    <div class="timer-start-date">从 2026 年 3 月 21 日 初次告白开始</div>
                 </div>
             </div>
         </div>
@@ -137,6 +141,12 @@
                     <div class="gallery-item">
                         <img src="images/photo5.jpg" alt="我们的合照 5" loading="lazy">
                     </div>
+                    <div class="gallery-item">
+                        <img src="images/photo6.jpg" alt="我们的合照 6" loading="lazy">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/photo7.jpg" alt="我们的合照 7" loading="lazy">
+                    </div>
                 </div>
                 
                 <div class="gallery-nav">
@@ -197,8 +207,8 @@
                     </div>
                     
                     <div class="letter-content">
-                        <p>装修中......</p>
-                        <!-- <p>亲爱的斐：</p>
+                        <!----><p>装修中......</p>
+                         <p>亲爱的斐：</p>
                         
                         <p>有些藏在心底的爱意与温柔，面对面我总是嘴笨难言，不知道该如何好好表达，所以写下这封信，认认真真诉说我对你的满心欢喜。</p>
                         
@@ -212,7 +222,7 @@
                         
                         <p>未来的漫漫前路，我不想只做被你偏爱的人，更想成为好好偏爱你的人。我会慢慢学着细腻、学着温柔，用心呵护我们的感情，好好珍惜独一无二的你。往后余生，岁岁年年，我想一直陪着你，与你双向奔赴、岁岁相守。何其有幸遇见你，未来漫漫朝夕，还请我的满心欢喜，多多指教。</p>
                         
-                        <p class="letter-signature"> -->
+                        <p class="letter-signature">
                             永远爱你的<br>
                             邓雪松<br>
                             <span class="letter-date">2026 年 8 月 18 日</span>
@@ -264,6 +274,8 @@
         <div class="nav-dot" data-section="ending" title="结尾"></div>
     </div>
 
+    <!-- 先加载配置加载器，再加载主脚本 -->
+    <script src="js/config-loader.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

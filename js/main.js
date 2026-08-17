@@ -5,7 +5,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // 初始化所有模块
     initTimer();
-    initMusicPlayer();
     initScrollAnimations();
     initTimelineAnimation();
     initGallery();
@@ -13,6 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initNavDots();
     initBackToTop();
     initHeartEffect();
+    
+    // 延迟初始化音乐播放器，等待配置加载完成
+    setTimeout(() => {
+        initMusicPlayer();
+    }, 1500);
 });
 
 // ===================================
@@ -20,7 +24,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===================================
 
 function initTimer() {
-    const startDate = new Date('2026-04-11T00:00:00');
+    // 优先使用配置中的日期，如果没有则使用默认值
+    let startDateStr = window.startDateStr || getConfig('site.start_date', '2026-03-13');
+    const startDate = new Date(startDateStr + 'T19:00:00');
     
     function updateTimer() {
         const now = new Date();
