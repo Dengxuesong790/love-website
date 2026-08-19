@@ -24,11 +24,29 @@ document.addEventListener('DOMContentLoaded', function() {
 // 计时器功能
 // ===================================
 
+// 计时器实例（用于清理，避免重复初始化）
+let timerInterval = null;
+
 function initTimer() {
+    // 清除上一个计时器，避免配置加载后再次初始化导致数字跳动
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
     // 优先使用配置中的日期，如果没有则使用默认值
-    let startDateStr = window.startDateStr || getConfig('site.start_date', '2026-03-13');
+    let startDateStr = window.startDateStr || getConfig('site.start_date', '2026-03-21');
     const startDate = new Date(startDateStr + 'T19:00:00');
-    
+
+    // 同步"从 X 开始"提示，保证与计时计算使用同一日期
+    const startDateEl = document.querySelector('.timer-start-date');
+    if (startDateEl) {
+        const parts = startDateStr.split('-');
+        if (parts.length === 3) {
+            startDateEl.textContent = `从 ${parseInt(parts[0])} 年 ${parseInt(parts[1])} 月 ${parseInt(parts[2])} 日 初次告白开始`;
+        }
+    }
+
     function updateTimer() {
         const now = new Date();
         const diff = now - startDate;
@@ -54,7 +72,7 @@ function initTimer() {
     }
     
     updateTimer();
-    setInterval(updateTimer, 1000);
+    timerInterval = setInterval(updateTimer, 1000);
 }
 
 // ===================================

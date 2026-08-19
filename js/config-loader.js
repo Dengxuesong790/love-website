@@ -174,9 +174,29 @@ function updateLetters(letters) {
 
     container.innerHTML = '';
 
-    letters.forEach(letter => {
+    // 多封情书时显示"历史情书"入口导航
+    if (letters.length > 1) {
+        const nav = document.createElement('div');
+        nav.className = 'letter-history-nav';
+        let navHtml = '<span class="letter-history-label">💌 历史情书</span>';
+        letters.forEach((letter, index) => {
+            navHtml += `<button class="letter-history-chip" data-index="${index}">${letter.date || '第' + (index + 1) + '封'}</button>`;
+        });
+        nav.innerHTML = navHtml;
+        container.appendChild(nav);
+
+        nav.querySelectorAll('.letter-history-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const paper = container.querySelector(`[data-letter-index="${chip.dataset.index}"]`);
+                if (paper) paper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    }
+
+    letters.forEach((letter, index) => {
         const paper = document.createElement('div');
         paper.className = 'letter-paper';
+        paper.setAttribute('data-letter-index', index);
 
         let html = `
             <div class="letter-header">

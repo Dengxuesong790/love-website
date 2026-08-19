@@ -523,6 +523,40 @@
     margin-top: 60px;
 }
 
+/* 情书历史导航条 */
+.letter-history-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 36px;
+}
+
+.letter-history-label {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-right: 4px;
+}
+
+.letter-history-chip {
+    padding: 6px 16px;
+    border: 1.5px solid var(--primary-pink);
+    border-radius: 20px;
+    background: var(--white);
+    color: var(--dark-pink);
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.letter-history-chip:hover {
+    background: linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%);
+    color: var(--white);
+    border-color: transparent;
+}
+
 .letter-paper {
     background: var(--cream);
     padding: 60px 50px;
