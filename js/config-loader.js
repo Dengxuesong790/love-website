@@ -82,17 +82,26 @@ function applyConfigs() {
         }
     }
 
-    // 2. 应用情书配置
-    if (configCache['letter.title']) {
-        updateElementText('.letter-title', configCache['letter.title']);
-    }
+    // 2. 应用情书配置（优先使用多封历史记录，兼容旧的单封配置）
+    if (configCache['letter.list']) {
+        try {
+            const letters = JSON.parse(configCache['letter.list']);
+            updateLetters(letters);
+        } catch (e) {
+            console.error('解析情书列表失败:', e);
+        }
+    } else {
+        if (configCache['letter.title']) {
+            updateElementText('.letter-title', configCache['letter.title']);
+        }
 
-    if (configCache['letter.content']) {
-        updateLetterContent(configCache['letter.content']);
-    }
+        if (configCache['letter.content']) {
+            updateLetterContent(configCache['letter.content']);
+        }
 
-    if (configCache['letter.signature']) {
-        updateElementText('.letter-signature', configCache['letter.signature'], true);
+        if (configCache['letter.signature']) {
+            updateElementText('.letter-signature', configCache['letter.signature'], true);
+        }
     }
 
     // 3. 应用时间线配置
@@ -129,28 +138,67 @@ function updateElementText(selector, text, useHTML = false) {
 }
 
 /**
- * 更新情书内容
+ * 将情书正文（\n\n 分段）渲染为 HTML 段落，自动识别落款段落
  */
-function updateLetterContent(content) {
-    const letterContentEl = document.querySelector('.letter-content');
-    if (!letterContentEl) return;
-
-    // 将换行符转换为 HTML 段落
+function renderLetterParagraphs(content) {
     const paragraphs = content.split('\n\n').filter(p => p.trim());
-    
+
     let html = '';
-    paragraphs.forEach((p, index) => {
-        if (index === 0) {
-            html += `<p>${p.replace(/\n/g, '<br>')}</p>`;
-        } else if (p.includes('永远爱你的') || p.includes('此致') || p.includes('Love')) {
+    paragraphs.forEach(p => {
+        if (p.includes('永远爱你的') || p.includes('此致') || p.includes('Love')) {
             // 签名部分
             html += `<p class="letter-signature">${p.replace(/\n/g, '<br>')}</p>`;
         } else {
             html += `<p>${p.replace(/\n/g, '<br>')}</p>`;
         }
     });
+    return html;
+}
 
-    letterContentEl.innerHTML = html;
+/**
+ * 更新情书内容（单封，兼容旧配置）
+ */
+function updateLetterContent(content) {
+    const letterContentEl = document.querySelector('.letter-content');
+    if (!letterContentEl) return;
+
+    letterContentEl.innerHTML = renderLetterParagraphs(content);
+}
+
+/**
+ * 渲染情书历史记录（多封，按传入顺序展示，最新在前）
+ */
+function updateLetters(letters) {
+    const container = document.getElementById('letterContainer');
+    if (!container || !Array.isArray(letters) || !letters.length) return;
+
+    container.innerHTML = '';
+
+    letters.forEach(letter => {
+        const paper = document.createElement('div');
+        paper.className = 'letter-paper';
+
+        let html = `
+            <div class="letter-header">
+                <span class="heart-decoration">❤️</span>
+                <div class="letter-title">${letter.title || '致我最爱的你'}</div>
+                <span class="heart-decoration">❤️</span>
+            </div>
+            <div class="letter-content">
+                ${renderLetterParagraphs(letter.content || '')}
+                ${letter.signature || letter.date ? `
+                <p class="letter-signature">
+                    ${(letter.signature || '').replace(/\n/g, '<br>')}
+                    ${letter.date ? `<br><span class="letter-date">${letter.date}</span>` : ''}
+                </p>` : ''}
+            </div>
+            <div class="letter-footer">
+                <div class="seal">💕</div>
+            </div>`;
+
+        paper.innerHTML = html;
+        container.appendChild(paper);
+    });
 }
 
 /**

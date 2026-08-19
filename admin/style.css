@@ -435,3 +435,29 @@ textarea.form-control { min-height: 120px; resize: vertical; line-height: 1.7; }
     flex-wrap: wrap;
     gap: 10px;
 }
+
+/* ---------- 情书历史记录编辑器 ---------- */
+.letter-editor-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    background: #FFFBFB;
+}
+
+.letter-editor-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.letter-editor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+@media (max-width: 640px) {
+    .letter-editor-grid { grid-template-columns: 1fr; }
+}

@@ -518,6 +518,11 @@
     margin: 0 auto;
 }
 
+/* 多封情书（历史记录）之间的间距 */
+.letter-paper + .letter-paper {
+    margin-top: 60px;
+}
+
 .letter-paper {
     background: var(--cream);
     padding: 60px 50px;

@@ -13,7 +13,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
-from database import get_connection, init_db
+from database import get_connection, init_db, DEFAULT_CONFIGS
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, 'uploads')
@@ -323,9 +323,30 @@ def ensure_admin_account():
         conn.close()
 
 
+def ensure_missing_configs():
+    """为存量数据库补充新增的默认配置项（如 letter.list 情书历史记录）"""
+    conn = get_connection()
+    try:
+        existing = {row['config_key'] for row in conn.execute('SELECT config_key FROM site_config').fetchall()}
+        added = 0
+        for key, value in DEFAULT_CONFIGS.items():
+            if key not in existing:
+                conn.execute(
+                    'INSERT INTO site_config (config_key, config_value) VALUES (?, ?)',
+                    (key, value)
+                )
+                added += 1
+        conn.commit()
+        if added:
+            print(f'已补充 {added} 项默认配置: {[k for k in DEFAULT_CONFIGS if k not in existing]}')
+    finally:
+        conn.close()
+
+
 if __name__ == '__main__':
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     init_db()
+    ensure_missing_configs()
     ensure_admin_account()
     print('=' * 50)
     print('爱情纪念网站后端服务已启动')

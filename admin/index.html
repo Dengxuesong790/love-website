@@ -59,22 +59,14 @@
         <!-- ==================== 情书 ==================== -->
         <div class="tab-panel" id="panel-letter">
             <div class="panel-card">
-                <div class="panel-title">告白信内容</div>
-                <p class="panel-tip">正文用空行分段；"永远爱你的..."所在段落会自动按签名样式展示。</p>
-                <div class="form-group">
-                    <label>情书标题</label>
-                    <input type="text" class="form-control" id="letter-title" data-config="letter.title">
+                <div class="section-title-row">
+                    <div class="panel-title">情书历史记录</div>
+                    <button class="btn-secondary" id="letterAdd">＋ 添加情书</button>
                 </div>
-                <div class="form-group">
-                    <label>情书正文</label>
-                    <textarea class="form-control" id="letter-content" data-config="letter.content"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>落款签名</label>
-                    <textarea class="form-control" id="letter-signature" data-config="letter.signature" style="min-height:70px;"></textarea>
-                </div>
+                <p class="panel-tip">支持多封情书，按从上到下顺序展示（最新的一封放最上面）。每封填写：标题 / 日期 / 正文（空行分段）/ 落款签名。</p>
+                <div id="letterList"></div>
                 <div class="save-bar">
-                    <button class="btn-primary" style="width:auto; padding:10px 28px;" data-save="letter">保存修改</button>
+                    <button class="btn-primary" style="width:auto; padding:10px 28px;" data-save="letter-list">保存情书</button>
                     <span class="save-tip" id="tip-letter"></span>
                 </div>
             </div>
@@ -182,6 +174,7 @@
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
                 this.classList.add('active');
                 document.getElementById('panel-' + this.dataset.tab).classList.add('active');
+                if (this.dataset.tab === 'letter') loadLetters();
                 if (this.dataset.tab === 'timeline') loadTimeline();
                 if (this.dataset.tab === 'gallery') loadResources('image', 'galleryList');
                 if (this.dataset.tab === 'music') loadResources('music', 'musicList');
@@ -218,25 +211,145 @@
             });
         }
 
-        document.querySelectorAll('[data-save]').forEach(btn => {
-            btn.addEventListener('click', async function () {
-                const group = this.dataset.save;
-                const keys = group === 'letter'
-                    ? ['letter.title', 'letter.content', 'letter.signature']
-                    : ['site.title', 'site.couple_names', 'site.description', 'site.start_date'];
-                const configs = [];
-                document.querySelectorAll('[data-config]').forEach(input => {
-                    if (keys.includes(input.dataset.config)) {
-                        configs.push({ configKey: input.dataset.config, configValue: input.value });
-                    }
-                });
-                try {
-                    await api('/config/batch', { method: 'PUT', body: { configs } });
-                    setTip('tip-' + group, '✅ 保存成功，刷新网站页面即可看到效果');
-                } catch (e) {
-                    setTip('tip-' + group, '❌ ' + e.message, true);
+        document.querySelector('[data-save="site"]').addEventListener('click', async function () {
+            const keys = ['site.title', 'site.couple_names', 'site.description', 'site.start_date'];
+            const configs = [];
+            document.querySelectorAll('[data-config]').forEach(input => {
+                if (keys.includes(input.dataset.config)) {
+                    configs.push({ configKey: input.dataset.config, configValue: input.value });
                 }
             });
+            try {
+                await api('/config/batch', { method: 'PUT', body: { configs } });
+                setTip('tip-site', '✅ 保存成功，刷新网站页面即可看到效果');
+            } catch (e) {
+                setTip('tip-site', '❌ ' + e.message, true);
+            }
+        });
+
+        // ==================== 情书历史记录 ====================
+        let letterItems = [];
+
+        function emptyLetter() {
+            return { title: '致我最爱的你', date: '', content: '', signature: '永远爱你的\n' };
+        }
+
+        function loadLetters() {
+            api('/config/all').then(list => {
+                const item = list.find(i => i.configKey === 'letter.list');
+                if (item && item.configValue) {
+                    try { letterItems = JSON.parse(item.configValue); } catch (e) { letterItems = []; }
+                } else {
+                    // 兼容旧的单封配置
+                    const map = {};
+                    list.forEach(i => map[i.configKey] = i.configValue);
+                    if (map['letter.content']) {
+                        letterItems = [{
+                            title: map['letter.title'] || '致我最爱的你',
+                            date: '',
+                            content: map['letter.content'],
+                            signature: map['letter.signature'] || ''
+                        }];
+                    }
+                }
+                if (!Array.isArray(letterItems) || !letterItems.length) {
+                    letterItems = [emptyLetter()];
+                }
+                renderLetters();
+            }).catch(e => setTip('tip-letter', '❌ ' + e.message, true));
+        }
+
+        function syncLetterCards() {
+            document.querySelectorAll('.letter-editor-card').forEach((card, i) => {
+                letterItems[i] = {
+                    title: card.querySelector('.l-title').value.trim(),
+                    date: card.querySelector('.l-date').value.trim(),
+                    content: card.querySelector('.l-content').value,
+                    signature: card.querySelector('.l-signature').value
+                };
+            });
+        }
+
+        function renderLetters() {
+            const container = document.getElementById('letterList');
+            container.innerHTML = '';
+            letterItems.forEach((letter, idx) => {
+                const card = document.createElement('div');
+                card.className = 'letter-editor-card';
+                card.innerHTML = `
+                    <div class="letter-editor-head">
+                        <span style="font-size:0.85rem;color:var(--text-light);">第 ${idx + 1} 封</span>
+                        <div style="display:flex;gap:6px;">
+                            <button class="btn-mini l-up" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                            <button class="btn-mini l-down" ${idx === letterItems.length - 1 ? 'disabled' : ''}>↓</button>
+                            <button class="btn-danger l-del">删除</button>
+                        </div>
+                    </div>
+                    <div class="letter-editor-grid">
+                        <div class="form-group">
+                            <label>标题</label>
+                            <input type="text" class="form-control l-title" value="${(letter.title || '').replace(/"/g, '&quot;')}">
+                        </div>
+                        <div class="form-group">
+                            <label>日期（如 2026-08-18）</label>
+                            <input type="text" class="form-control l-date" value="${(letter.date || '').replace(/"/g, '&quot;')}" placeholder="2026-08-18">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>正文（空行分段）</label>
+                        <textarea class="form-control l-content" style="min-height:140px;">${letter.content || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>落款签名</label>
+                        <textarea class="form-control l-signature" style="min-height:60px;">${letter.signature || ''}</textarea>
+                    </div>`;
+                container.appendChild(card);
+            });
+
+            container.querySelectorAll('.letter-editor-card').forEach((card, i) => {
+                card.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', syncLetterCards));
+                card.querySelector('.l-del').addEventListener('click', () => {
+                    if (letterItems.length <= 1) {
+                        setTip('tip-letter', '至少保留一封情书', true);
+                        return;
+                    }
+                    if (!confirm('确定删除这封情书？')) return;
+                    letterItems.splice(i, 1);
+                    renderLetters();
+                });
+            });
+            container.querySelectorAll('.l-up').forEach((btn, i) => {
+                if (i === 0) return;
+                btn.addEventListener('click', () => {
+                    [letterItems[i - 1], letterItems[i]] = [letterItems[i], letterItems[i - 1]];
+                    renderLetters();
+                });
+            });
+            container.querySelectorAll('.l-down').forEach((btn, i) => {
+                if (i === letterItems.length - 1) return;
+                btn.addEventListener('click', () => {
+                    [letterItems[i + 1], letterItems[i]] = [letterItems[i], letterItems[i + 1]];
+                    renderLetters();
+                });
+            });
+        }
+
+        document.getElementById('letterAdd').addEventListener('click', () => {
+            letterItems.push(emptyLetter());
+            renderLetters();
+        });
+
+        document.querySelector('[data-save="letter-list"]').addEventListener('click', async function () {
+            syncLetterCards();
+            try {
+                await api('/config/letter.list', {
+                    method: 'PUT',
+                    body: { configValue: JSON.stringify(letterItems) }
+                });
+                setTip('tip-letter', '✅ 情书已保存，刷新网站页面即可看到');
+            } catch (e) {
+                setTip('tip-letter', '❌ ' + e.message, true);
+            }
         });
 
         // ==================== 时间线 ====================
@@ -417,6 +530,85 @@
             }
         }
 
+        // 文件上传（带实时进度与超时）
+        // 服务器上行带宽较慢时，fetch 全程无反馈，看起来像卡死；改用 XHR 展示进度并兜底超时
+        function uploadWithProgress(formData, btn, timeoutMs) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const timer = setTimeout(() => {
+                    xhr.abort();
+                    reject(new Error('上传超时（网络过慢，请检查后重试）'));
+                }, timeoutMs);
+                xhr.open('POST', API + '/resource/upload');
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                xhr.upload.onprogress = function (e) {
+                    if (e.lengthComputable) {
+                        const pct = Math.min(99, Math.round(e.loaded / e.total * 100));
+                        btn.textContent = '上传中 ' + pct + '%';
+                    }
+                };
+                xhr.onload = function () {
+                    clearTimeout(timer);
+                    if (xhr.status === 401) {
+                        localStorage.removeItem('admin_token');
+                        window.location.href = 'login.html';
+                        reject(new Error('未登录'));
+                        return;
+                    }
+                    try {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.code !== 200) {
+                            reject(new Error(result.message || '请求失败'));
+                        } else {
+                            resolve(result.data);
+                        }
+                    } catch (err) {
+                        reject(new Error('服务器返回异常（HTTP ' + xhr.status + '）'));
+                    }
+                };
+                xhr.onerror = function () {
+                    clearTimeout(timer);
+                    reject(new Error('网络错误，上传失败'));
+                };
+                xhr.send(formData);
+            });
+        }
+
+        // 客户端压缩照片（jpg/webp）：最长边缩到 1920px、JPEG 质量 0.8，体积可减小 80%+
+        // 服务器上行带宽较慢，压缩后上传快很多；GIF/PNG 保留原样
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = function () {
+                    const MAX = 1920;
+                    let { width, height } = img;
+                    if (width > MAX || height > MAX) {
+                        const ratio = Math.min(MAX / width, MAX / height);
+                        width = Math.round(width * ratio);
+                        height = Math.round(height * ratio);
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    URL.revokeObjectURL(url);
+                    canvas.toBlob(function (blob) {
+                        if (blob) {
+                            resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' }));
+                        } else {
+                            reject(new Error('图片压缩失败'));
+                        }
+                    }, 'image/jpeg', 0.8);
+                };
+                img.onerror = function () {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('图片读取失败'));
+                };
+                img.src = url;
+            });
+        }
+
         // 上传绑定
         function bindUpload(fileId, nameId, btnId, tipId, type, listId) {
             document.getElementById(btnId).addEventListener('click', async function () {
@@ -427,12 +619,23 @@
                 }
                 this.disabled = true;
                 this.textContent = '上传中...';
+                // 大尺寸照片先压缩再上传，缩短上传耗时（失败则退回原图）
+                let uploadFile = file;
+                if (type === 'image' && (file.type === 'image/jpeg' || file.type === 'image/webp') && file.size > 500 * 1024) {
+                    this.textContent = '压缩中...';
+                    try {
+                        uploadFile = await compressImage(file);
+                    } catch (e) {
+                        setTip(tipId, '⚠️ ' + e.message + '，将上传原图', true);
+                    }
+                }
                 const formData = new FormData();
                 formData.append('type', type);
-                formData.append('file', file);
+                formData.append('file', uploadFile);
                 formData.append('resourceName', document.getElementById(nameId).value.trim() || file.name);
                 try {
-                    await api('/resource/upload', { method: 'POST', body: formData });
+                    // 大文件耗时较长，放宽超时到 5 分钟；进度会实时显示在按钮上
+                    await uploadWithProgress(formData, this, 300000);
                     setTip(tipId, '✅ 上传成功');
                     document.getElementById(fileId).value = '';
                     document.getElementById(nameId).value = '';
@@ -452,6 +655,7 @@
         // 初始化加载
         document.getElementById('adminUser').textContent = '👤 ' + (localStorage.getItem('admin_username') || 'admin');
         loadTextConfigs();
+        loadLetters();
     </script>
 </body>
 </html>
