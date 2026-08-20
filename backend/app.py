@@ -26,7 +26,24 @@ app = Flask(__name__)
 CORS(app)  # 允许前端站点（GitHub Pages）跨域访问
 
 # 登录会话持久化到数据库：服务重启后 token 仍然有效，无需重新登录
+def ensure_session_table():
+    """确保 admin_session 表存在（兼容旧版本数据库升级，避免登录/鉴权写库报 500）"""
+    conn = get_connection()
+    try:
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS admin_session (
+                token TEXT PRIMARY KEY,
+                username TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now', 'localtime'))
+            )
+        ''')
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def save_session(token, username):
+    ensure_session_table()
     conn = get_connection()
     try:
         conn.execute(
@@ -43,6 +60,7 @@ def get_session_user(token):
     """根据 token 返回用户名；不存在则返回 None"""
     if not token:
         return None
+    ensure_session_table()
     conn = get_connection()
     try:
         row = conn.execute(
@@ -54,6 +72,7 @@ def get_session_user(token):
 
 
 def delete_session(token):
+    ensure_session_table()
     conn = get_connection()
     try:
         conn.execute('DELETE FROM admin_session WHERE token = ?', (token,))

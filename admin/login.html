@@ -65,7 +65,17 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
-                const result = await res.json();
+                let result;
+                try {
+                    result = await res.json();
+                } catch (err) {
+                    // 后端返回了非 JSON 内容（如 500 错误页），单独提示便于排查
+                    msg.className = 'msg error';
+                    msg.textContent = '服务器错误（HTTP ' + res.status + '），请检查后端日志';
+                    btn.disabled = false;
+                    btn.textContent = '登 录';
+                    return;
+                }
 
                 if (result.code === 200) {
                     localStorage.setItem('admin_token', result.data.token);
