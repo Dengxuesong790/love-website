@@ -153,6 +153,14 @@ def init_db():
                 created_at TEXT DEFAULT (datetime('now', 'localtime'))
             )
         ''')
+        # 登录会话持久化：token 写入数据库，后端服务重启后登录状态仍然有效
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS admin_session (
+                token TEXT PRIMARY KEY,
+                username TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now', 'localtime'))
+            )
+        ''')
         conn.commit()
 
         # 默认配置仅在库为空时写入

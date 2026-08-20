@@ -36,6 +36,13 @@
             window.location.href = 'index.html';
         }
 
+        // 登录过期提示（从管理页 401 跳转回来时显示）
+        if (new URLSearchParams(location.search).get('expired')) {
+            const msg = document.getElementById('msg');
+            msg.className = 'msg error';
+            msg.textContent = '登录已过期，请重新登录';
+        }
+
         async function login() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;

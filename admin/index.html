@@ -132,6 +132,18 @@
         const token = localStorage.getItem('admin_token');
         if (!token) {
             window.location.href = 'login.html';
+        } else {
+            // 进入后台时先校验登录状态：token 已失效则立即回登录页，
+            // 避免编辑完内容点"保存"时才被弹走（导致内容丢失且看起来像保存失败）
+            fetch(API + '/auth/verify', { headers: { 'Authorization': 'Bearer ' + token } })
+                .then(res => {
+                    if (res.status === 401) {
+                        localStorage.removeItem('admin_token');
+                        localStorage.removeItem('admin_username');
+                        window.location.href = 'login.html?expired=1';
+                    }
+                })
+                .catch(() => { /* 后端暂不可用时不打扰，页面按降级模式展示 */ });
         }
 
         // ---------- 基础请求封装 ----------
@@ -148,7 +160,8 @@
             const res = await fetch(API + path, Object.assign({}, options, { headers }));
             if (res.status === 401) {
                 localStorage.removeItem('admin_token');
-                window.location.href = 'login.html';
+                localStorage.removeItem('admin_username');
+                window.location.href = 'login.html?expired=1';
                 throw new Error('未登录');
             }
             const result = await res.json();
@@ -551,7 +564,8 @@
                     clearTimeout(timer);
                     if (xhr.status === 401) {
                         localStorage.removeItem('admin_token');
-                        window.location.href = 'login.html';
+                        localStorage.removeItem('admin_username');
+                        window.location.href = 'login.html?expired=1';
                         reject(new Error('未登录'));
                         return;
                     }

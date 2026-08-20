@@ -25,8 +25,41 @@ ALLOWED_MUSIC_EXT = {'.mp3', '.wav', '.ogg', '.m4a'}
 app = Flask(__name__)
 CORS(app)  # 允许前端站点（GitHub Pages）跨域访问
 
-# 运行中的登录会话：token -> username（重启后失效，需重新登录）
-SESSIONS = {}
+# 登录会话持久化到数据库：服务重启后 token 仍然有效，无需重新登录
+def save_session(token, username):
+    conn = get_connection()
+    try:
+        conn.execute(
+            'INSERT INTO admin_session (token, username) VALUES (?, ?) '
+            'ON CONFLICT(token) DO UPDATE SET username = excluded.username',
+            (token, username)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_session_user(token):
+    """根据 token 返回用户名；不存在则返回 None"""
+    if not token:
+        return None
+    conn = get_connection()
+    try:
+        row = conn.execute(
+            'SELECT username FROM admin_session WHERE token = ?', (token,)
+        ).fetchone()
+        return row['username'] if row else None
+    finally:
+        conn.close()
+
+
+def delete_session(token):
+    conn = get_connection()
+    try:
+        conn.execute('DELETE FROM admin_session WHERE token = ?', (token,))
+        conn.commit()
+    finally:
+        conn.close()
 
 # 默认管理员账号（可通过环境变量覆盖，首次启动时写入数据库）
 DEFAULT_ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
@@ -51,7 +84,7 @@ def require_auth(fn):
     def wrapper(*args, **kwargs):
         auth = request.headers.get('Authorization', '')
         token = auth.replace('Bearer ', '').strip() if auth.startswith('Bearer ') else ''
-        if token not in SESSIONS:
+        if not get_session_user(token):
             return fail(401, '未登录或登录已过期')
         return fn(*args, **kwargs)
     return wrapper
@@ -83,14 +116,18 @@ def login():
         return fail(401, '用户名或密码错误')
 
     token = secrets.token_hex(32)
-    SESSIONS[token] = username
+    save_session(token, username)
     return ok({'token': token, 'username': username}, '登录成功')
 
 
 @app.route('/api/auth/verify', methods=['GET'])
-@require_auth
 def verify():
-    return ok({'username': SESSIONS[request.headers.get('Authorization', '').replace('Bearer ', '').strip()]}, '验证通过')
+    auth = request.headers.get('Authorization', '')
+    token = auth.replace('Bearer ', '').strip() if auth.startswith('Bearer ') else ''
+    username = get_session_user(token)
+    if not username:
+        return fail(401, '未登录或登录已过期')
+    return ok({'username': username}, '验证通过')
 
 
 @app.route('/api/auth/logout', methods=['POST'])
@@ -98,7 +135,7 @@ def verify():
 def logout():
     auth = request.headers.get('Authorization', '')
     token = auth.replace('Bearer ', '').strip()
-    SESSIONS.pop(token, None)
+    delete_session(token)
     return ok(message='已退出登录')
 
 
